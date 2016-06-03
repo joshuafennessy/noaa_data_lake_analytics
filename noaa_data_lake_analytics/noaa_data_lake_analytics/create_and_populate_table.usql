@@ -1,0 +1,37 @@
+﻿CREATE DATABASE IF NOT EXISTS weather;
+
+USE weather;
+
+DROP TABLE IF EXISTS noaa_daily;
+
+CREATE TABLE noaa_daily
+(
+    station_id string,
+    date_reported int,
+    element string,
+    data_value string,
+    mflag string,
+    qflag string,
+    sflag string,
+    obstime string,
+    
+    INDEX station_idx CLUSTERED (station_id ASC)
+        PARTITIONED BY HASH (station_id)    
+);
+
+@noaa_daily_source = 
+    EXTRACT station_id string,
+            date_reported int,
+            element string,
+            data_value string,
+            mflag string,
+            qflag string,
+            sflag string,
+            obstime string
+    FROM "/weather/daily/{*}.csv"  //how do we reference a directory filled with files?
+    USING Extractors.Csv(silent:true); //silent:true forces the Extractor to ignore data source errors
+
+INSERT INTO noaa_daily
+SELECT *
+FROM @noaa_daily_source;
+

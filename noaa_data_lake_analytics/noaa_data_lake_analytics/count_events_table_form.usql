@@ -1,0 +1,9 @@
+﻿@output =
+    SELECT COUNT(element) AS event_count,
+           date_reported
+    FROM weather.dbo.noaa_daily
+    GROUP BY date_reported;
+
+OUTPUT @output
+TO "/weather/output/counts_by_date/counts_by_date_table_form.csv"
+USING Outputters.Csv();
